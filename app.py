@@ -16,12 +16,14 @@ app = Dash(__name__)
 # https://wasmdash.vercel.app/
 
 app.layout = html.Div([
-    html.Div(children='Cardiovascular Disease Prediction'),
-    html.Hr(),
-    dcc.RadioItems(options=df_cardiovascular.columns, value='age', id='feature-dist', inline=True),
-    html.Br(),
-    dbc.Alert(id='tbl_out', color='primary'),
-    html.Br(),
+   # html.Div([
+        html.Div(children='Cardiovascular Disease Prediction'),
+        html.Hr(),
+        html.Div([dash_table.DataTable(id='tbl_out', fill_width=False)], style={'width': '50%', 'display': 'inline-block', 'text_align': 'right'}),
+        html.Br(),
+        html.Div([dcc.RadioItems(options=df_cardiovascular.columns, value='age', id='feature-dist', inline=True)], style={'width': '50%', 'display': 'inline-block', 'text_align': 'right'}),
+     #]),
+    #html.Br(),
     dash_table.DataTable(data=df_cardiovascular.to_dict('records'), page_size=6, id='data_table'),
     dcc.Graph(figure={}, id='feature-hist'),
     html.Br(), 
@@ -32,18 +34,23 @@ app.layout = html.Div([
 
 # Generate min/max/mean values for clicked column
 @callback(
-    Output(component_id='tbl_out', component_property='children'),
+    Output(component_id='tbl_out', component_property='data'),
     Input(component_id='data_table', component_property='active_cell')
 )
 def update_info(active_cell):
-    print(active_cell)
+    dict_meta_info = {'Column': 'none', 'Minimum': 'none', 'Maximum': 'none', 'Mean': 'none'}
     if active_cell:
         # generate info on min/max in data column
         maximum = round(df_cardiovascular[active_cell.get('column_id')].max(), 4)
         minimum = round(df_cardiovascular[active_cell.get('column_id')].min(), 4)
         mean_col = round(df_cardiovascular[active_cell.get('column_id')].mean(), 4)
-        return f"Column {active_cell.get('column_id')}: \n Min:{minimum} \t Max:{maximum} \t Mean:{mean_col}"
-    return "Column: \n Min: \t Max: \t Avg:"
+        dict_meta_info['Column'] = active_cell.get('column_id')
+        dict_meta_info['Minimum'] = minimum
+        dict_meta_info['Maximum'] = maximum
+        dict_meta_info['Mean'] = mean_col
+        # f"Column {active_cell.get('column_id')}: \n Min:{minimum} \t Max:{maximum} \t Mean:{mean_col}"
+        return [dict_meta_info]
+    return [dict_meta_info]
 
 # Show feature historgam for selected attribute
 @callback(
@@ -60,7 +67,6 @@ def update_graph(col_chosen):
 def update_img_source(value):
     graphs = []
     for i in range(len(value)):
-        print(i)
         fig = figures_model_results.get(value[i])
         graph = dcc.Graph(id=str(i), figure=fig)
         graphs.append(graph)
