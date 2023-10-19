@@ -18,13 +18,15 @@ df_cardiovascular = pd.read_csv('https://raw.githubusercontent.com/kb22/Heart-Di
 df_cardiovascular.info()
 df_cardiovascular.describe()
 
+figures_model_results = {'K-Nearest-Neighbor':0, 'Decision Tree':0, 'Random Forest':0, 'Support Vector Machine':0}
+
 # Understanding the Data 
 
 # feature correlation matrix
 fig = px.imshow(df_cardiovascular.corr(), x=df_cardiovascular.columns, y=df_cardiovascular.columns, color_continuous_scale=px.colors.sequential.Cividis_r)
 fig.update_xaxes(side="top")
 fig.update_layout(width=800, height=600)
-fig.show()
+#fig.show()
 fig.write_html('./figures/feature_correlation_matrix.html')
 
 # histograms for each feature
@@ -46,12 +48,12 @@ for i, column in enumerate(df_cardiovascular.columns):
         row_num = row_num + 1
         count = 0
 fig.update_layout(title_text="Feature Historgrams")
-fig.show()
+#fig.show()
 fig.write_html('./figures/feature_histograms.html')
 
 # For target class
 fig = px.histogram(df_cardiovascular, x='target')
-fig.show()
+#fig.show()
 fig.write_html('./figures/label_histogram.html')
 
 # Data Preprocessing
@@ -69,7 +71,7 @@ dataset[columns_to_scale] = standardScaler.fit_transform(dataset[columns_to_scal
 # separate label from features
 y = df_cardiovascular['target']
 X = df_cardiovascular.drop(['target'], axis = 1)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.33, random_state = 0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.33, random_state = 0, stratify=y)
 
 # K_neighbors classifier
 # with 20 different neighbor settings
@@ -82,15 +84,16 @@ for k in range(1,21):
 print("The score for K Neighbors Classifier is {}% with {} nieghbors.".format(knn_scores[np.array(knn_scores).argmax()]*100, 8))
 
 # display scores for different neighbor values
-fig = px.line(x=[i for i in range(1, 21)], y=knn_scores, markers=True, line_shape="linear", labels={"x": "Number of Neighbors (K)", "y": "Scores"})
-fig.update_traces(marker=dict(color='red'))
+fig_knn = px.line(x=[i for i in range(1, 21)], y=knn_scores, markers=True, line_shape="linear", labels={"x": "Number of Neighbors (K)", "y": "Scores"})
+fig_knn.update_traces(marker=dict(color='red'))
 
 for i in range(1, 21):
-    fig.add_annotation(text=str((i, knn_scores[i - 1])), x=i, y=knn_scores[i - 1], showarrow=False)
-fig.update_xaxes(tickvals=df_cardiovascular)
-fig.update_layout(title="K Neighbors Classifier scores for different K values")
-fig.show()
-fig.write_html('./figures/knn_scores.html')
+    fig_knn.add_annotation(text=str((i, knn_scores[i - 1])), x=i, y=knn_scores[i - 1], showarrow=False)
+fig_knn.update_xaxes(tickvals=df_cardiovascular)
+fig_knn.update_layout(title="K Neighbors Classifier scores for different K values")
+#fig_knn.show()
+figures_model_results["K-Nearest-Neighbor"] = fig_knn
+fig_knn.write_html('./figures/knn_scores.html')
 
 # Support Vector Classifier
 svc_scores = []
@@ -109,13 +112,14 @@ text_annotations = [dict(x=i, y=score, text=score, showarrow=False) for i, score
 layout = go.Layout(title='Support Vector Classifier scores for different kernels',
                    xaxis=dict(title='Kernels'),
                    yaxis=dict(title='Scores'))
-fig = go.Figure(data=[bar_trace], layout=layout)
+fig_svm = go.Figure(data=[bar_trace], layout=layout)
 
 for annotation in text_annotations:
-    fig.add_annotation(annotation)
+    fig_svm.add_annotation(annotation)
 
-fig.show()
-fig.write_html('./figures/svm_scores.html')
+#fig_svm.show()
+figures_model_results["Support Vector Machine"] = fig_svm
+fig_svm.write_html('./figures/svm_scores.html')
 
 # Decision Tree
 dt_scores = []
@@ -134,14 +138,15 @@ layout = go.Layout(
     xaxis=dict(title='Max features'),
     yaxis=dict(title='Scores'),
 )
-fig = go.Figure(data=[line_trace], layout=layout)
+fig_dt = go.Figure(data=[line_trace], layout=layout)
 
 for annotation in text_annotations:
-    fig.add_annotation(annotation)
+    fig_dt.add_annotation(annotation)
 
-fig.update_xaxes(tickvals=list(range(1, len(X.columns) + 1)))
-fig.show()
-fig.write_html('./figures/dt_scores.html')
+fig_dt.update_xaxes(tickvals=list(range(1, len(X.columns) + 1)))
+#fig_dt.show()
+figures_model_results["Decision Tree"] = fig_dt
+fig_dt.write_html('./figures/dt_scores.html')
 
 # Random Forest
 
@@ -169,9 +174,10 @@ layout = go.Layout(
     yaxis=dict(title='Scores')
 )
 
-fig = go.Figure(data=[bar_trace], layout=layout)
+fig_rf = go.Figure(data=[bar_trace], layout=layout)
 for annotation in text_annotations:
-    fig.add_annotation(annotation)
+    fig_rf.add_annotation(annotation)
 
-fig.show()
-fig.write_html('./figures/rf_scores.html')
+#fig_rf.show()
+figures_model_results["Random Forest"] = fig_rf
+fig_rf.write_html('./figures/rf_scores.html')
