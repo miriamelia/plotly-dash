@@ -15,9 +15,15 @@ app = Dash(__name__)
 # Design App here and add content from figures, dataset and other relevant calculations to respective divs
 # https://wasmdash.vercel.app/
 
+
+# Show feature correlations for selected attribute
+fig_corr = px.imshow(df_cardiovascular.corr(), x=df_cardiovascular.columns, y=df_cardiovascular.columns, color_continuous_scale=px.colors.sequential.Cividis_r)
+fig_corr.update_xaxes(side="top")
+fig_corr.update_layout(width=800, height=600)
+
 app.layout = html.Div([
    # html.Div([
-        html.Div(children='Cardiovascular Disease Prediction'),
+        html.Header(children='Cardiovascular Disease Prediction'),
         html.Hr(),
         html.Div([dash_table.DataTable(id='tbl_out', fill_width=False)], style={'width': '50%', 'display': 'inline-block', 'text_align': 'right'}),
         html.Br(),
@@ -25,8 +31,12 @@ app.layout = html.Div([
      #]),
     #html.Br(),
     dash_table.DataTable(data=df_cardiovascular.to_dict('records'), page_size=6, id='data_table'),
-    dcc.Graph(figure={}, id='feature-hist'),
     html.Br(), 
+    html.Div([
+        html.Div([dcc.Graph(figure=fig_corr, id='feature-corr', )], style={'width': '40%'}),
+        html.Br(),
+        html.Div([dcc.Graph(figure={}, id='feature-hist', style={'width': '115vh', 'height': '48vh'},)], style={'width': '60%'}),
+    ], style={'display': 'flex', 'justify-content': 'space-between'}),
     dcc.Dropdown(['Decision Tree', 'Random Forest', 'K-Nearest-Neighbor', 'Support Vector Machine'], ['Decision Tree', 'Random Forest'], id="model-dropdown", multi=True), 
     html.Br(),
     html.Div(id='graph-model-results', children=[])
