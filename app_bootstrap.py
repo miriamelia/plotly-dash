@@ -50,7 +50,8 @@ app.layout = dbc.Container([  # Wrap the layout in dbc.Container
         html.Hr(),
         dbc.Row([  # Use dbc.Row for horizontal layout
             dbc.Col([  # Use dbc.Col for column layout
-                dbc.Table.from_dataframe(df_cardiovascular, striped=True, bordered=True, hover=True, id='tbl_out'),
+                html.Div([dash_table.DataTable(id='tbl_out', fill_width=False)], style={'width': '50%', 'display': 'inline-block', 'text_align': 'right'}),
+                #dbc.Table.from_dataframe(df_cardiovascular, striped=True, bordered=True, hover=True, id='tbl_out'),
             ]),
             dbc.Col([
                 dbc.RadioItems(
