@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
-import webbrowser
 from main import figures_model_results
 import dash_ag_grid as dag
 
@@ -19,7 +18,7 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 # Show feature correlations for selected attribute
 fig_corr = px.imshow(df_cardiovascular.corr(), x=df_cardiovascular.columns, y=df_cardiovascular.columns, color_continuous_scale=px.colors.sequential.Cividis_r)
 fig_corr.update_xaxes(side="top")
-fig_corr.update_layout(width=800, height=600)
+#fig_corr.update_layout(width=800, height=600)
 
 columnDefs = [
     { 'field': 'age' },
@@ -44,67 +43,84 @@ grid = dag.AgGrid(
     columnDefs=columnDefs,
 )
 
-app.layout = dbc.Container([  # Wrap the layout in dbc.Container
+app.layout = dbc.Container([
     dbc.Container([
+        html.Br(),
         html.Header("Cardiovascular Disease Prediction", style={'font-size': '24px'}),
         html.Hr(),
-        dbc.Row([  # Use dbc.Row for horizontal layout
-            dbc.Col([  # Use dbc.Col for column layout
-                html.Div([dash_table.DataTable(id='tbl_out', fill_width=False)], style={'width': '50%', 'display': 'inline-block', 'text_align': 'right'}),
-                #dbc.Table.from_dataframe(df_cardiovascular, striped=True, bordered=True, hover=True, id='tbl_out'),
+        dbc.Row([ 
+            html.Br(),
+            html.Br(),
+            html.Br(),
+            dbc.Col([
+                html.Br(),
+                html.P("This dummy template demonstrates a monitoring UI for model selection, as well as a brief overview of the data distribution."),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                dbc.Row([ 
+                    dbc.Col([
+                        html.Div(
+                            [dash_table.DataTable(id='tbl_out', fill_width=False)], 
+                            style={'width': '50%', 'text_align': 'right'}
+                        ),
+                    ]),
+                ], align='end'),
             ]),
             dbc.Col([
+                dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '75vh', 'height': '40vh'})
+            ]),
+        ], justify="center"),
+    ]),
+    dbc.Row([ 
+        html.Div([grid]), 
+    ]),
+    html.Br(),
+    dbc.Container([
+        dbc.Col([
                 dbc.RadioItems(
                     options=[{'label': col, 'value': col} for col in df_cardiovascular.columns],
                     value='age',
                     id='feature-dist',
                     inline=True
                 )
-            ]),
         ]),
-    ]),
-    html.Br(),
-    html.Div([grid]),
-    #dbc.Table.from_dataframe(df_cardiovascular, striped=True, bordered=True, hover=True, responsive=True, id='data_table', responsive=True), # page_size=6, 
-    html.Br(),
-    dbc.Container([
-        dbc.Row([  # Use dbc.Row for horizontal layout
-            dbc.Col([
-                dcc.Graph(figure=fig_corr, id='feature-corr')
-            ], width=4),
+        dbc.Row([
             dbc.Col([
                 dcc.Graph(figure={}, id='feature-hist', style={'width': '115vh', 'height': '48vh'})
-            ], width=8),
-        ], justify="between"),  # Use 'justify' to control spacing between columns
+            ]),
+        ], justify="center"),  # Use 'justify' to control spacing between columns
     ]),
-    dbc.DropdownMenu(
-        label="Select Models",
-        children=[
-            dbc.DropdownMenuItem("Decision Tree", id="Decision Tree"),
-            dbc.DropdownMenuItem("Random Forest", id="Random Forest"),
-            dbc.DropdownMenuItem("K-Nearest-Neighbor", id="K-Nearest-Neighbor"),
-            dbc.DropdownMenuItem("Support Vector Machine", id="Support Vector Machine"),
-        ],
-        # multi=True,
-        id="model-dropdown",
-    ),
+    dbc.Row([
+        dbc.Col(
+            dcc.Dropdown(['Decision Tree', 'Random Forest', 'K-Nearest-Neighbor', 'Support Vector Machine'], ['Decision Tree', 'Random Forest'], id="model-dropdown", multi=True)
+            ),
+    ]),
     html.Br(),
-    html.Div(id='graph-model-results', children=[]),
+    dbc.Row([
+        html.Div(id='graph-model-results', children=[]),
+    ]),
 ])
 
 # Generate min/max/mean values for clicked column
 @callback(
     Output(component_id='tbl_out', component_property='data'),
-    Input(component_id='data_table', component_property='active_cell')
+    Input(component_id='data_table', component_property='cellClicked')
 )
-def update_info(active_cell):
+def update_info(cellClicked):
     dict_meta_info = {'Column': 'none', 'Minimum': 'none', 'Maximum': 'none', 'Mean': 'none'}
-    if active_cell:
+    if cellClicked:
         # generate info on min/max in data column
-        maximum = round(df_cardiovascular[active_cell.get('column_id')].max(), 4)
-        minimum = round(df_cardiovascular[active_cell.get('column_id')].min(), 4)
-        mean_col = round(df_cardiovascular[active_cell.get('column_id')].mean(), 4)
-        dict_meta_info['Column'] = active_cell.get('column_id')
+        maximum = round(df_cardiovascular[cellClicked.get('colId')].max(), 4)
+        minimum = round(df_cardiovascular[cellClicked.get('colId')].min(), 4)
+        mean_col = round(df_cardiovascular[cellClicked.get('colId')].mean(), 4)
+        dict_meta_info['Column'] = cellClicked.get('colId')
         dict_meta_info['Minimum'] = minimum
         dict_meta_info['Maximum'] = maximum
         dict_meta_info['Mean'] = mean_col
