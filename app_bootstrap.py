@@ -18,11 +18,10 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 # Show feature correlations for selected attribute
 fig_corr = px.imshow(df_cardiovascular.corr(), x=df_cardiovascular.columns, y=df_cardiovascular.columns, color_continuous_scale=px.colors.sequential.Cividis_r)
 fig_corr.update_xaxes(side="top")
-#fig_corr.update_layout(width=800, height=600)
 
 columnDefs = [
-    { 'field': 'age' },
-    { 'field': 'sex' },
+    { 'field': 'age'},
+    { 'field': 'sex'},
     { 'field': 'cp'},
     { 'field': 'trestbps'},
     { 'field': 'chol'},
@@ -41,40 +40,53 @@ grid = dag.AgGrid(
     id='data_table',
     rowData=df_cardiovascular.to_dict("records"),
     columnDefs=columnDefs,
+    columnSize="autoSize",
+    #skipHeader=True,
+    defaultColDef={"resizable": True, "sortable": True, "filter": True, "skipHeader":True},
 )
 
 app.layout = dbc.Container([
     dbc.Container([
-        html.Br(),
-        html.Header("Cardiovascular Disease Prediction", style={'font-size': '24px'}),
-        html.Hr(),
+        #html.Br(),
+        #html.Header("Cardiovascular Disease Prediction", style={'font-size': '24px'}),
+        #html.Hr(),
         dbc.Row([ 
-            html.Br(),
+            html.Img(src=app.get_asset_url('intro_image.jpeg')),
             html.Br(),
             html.Br(),
             dbc.Col([
                 html.Br(),
-                html.P("This dummy template demonstrates a monitoring UI for model selection, as well as a brief overview of the data distribution."),
-                html.Br(),
-                html.Br(),
-                html.Br(),
-                html.Br(),
-                html.Br(),
-                html.Br(),
+                #html.P("This dummy template demonstrates a monitoring UI for machine learning."),
+                html.P("Medical data column descriptions:", style={'margin-left' : '15px'}),
+                html.Li("cp: Chest pain type", id='cp', style={'margin-left' : '15px'}),
+                html.Li("trestbps: Resting blood pressure", id='trestbps', style={'margin-left' : '15px'}),
+                html.Li("chol: Serum cholesterol in mg/dl", id='chol', style={'margin-left' : '15px'}),
+                html.Li("fbs: Fasting blood sugar > 120 mg/d", id='fbs', style={'margin-left' : '15px'}),
+                html.Li("restecg: Resting electrocardiographic results", id='restecg', style={'margin-left' : '15px'}),
+                html.Li("thalach: Maximum heart rate achieved", id='thalach', style={'margin-left' : '15px'}),
+                html.Li("exang: Exercise induced angina", id='exang', style={'margin-left' : '15px'}),
+                html.Li("oldpeak: ST depression induced by exercise relative to rest", id='oldpeak', style={'margin-left' : '15px'}),
+                html.Li("slope: Of the peak exercise ST segment", id='slop', style={'margin-left' : '15px'}),
+                html.Li("ca: Number of major vessels (0-3) colored by fluoroscopy", id='ca', style={'margin-left' : '15px'}),
+                html.Li("thal: [normal; fixed defect; reversible defect]", id='thal', style={'margin-left' : '15px'}),
+                html.Li("target: Heart disease yes / no", id='target', style={'margin-left' : '15px'}),
                 html.Br(),
                 html.Br(),
                 html.Br(),
                 dbc.Row([ 
                     dbc.Col([
                         html.Div(
-                            [dash_table.DataTable(id='tbl_out', fill_width=False)], 
-                            style={'width': '50%', 'text_align': 'right'}
+                            [dash_table.DataTable(id='tbl_out', fill_width=False, style_header={
+                                'backgroundColor': 'white',
+                                'fontWeight': 'bold'
+                            }, style_cell={'padding': '5px'},)],
+                            style={'width': '50%', 'margin-left' : '15px'}
                         ),
                     ]),
                 ], align='end'),
-            ]),
+            ], style={'width': '45%'}),
             dbc.Col([
-                dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '75vh', 'height': '40vh'})
+                dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '60vh', 'height': '48vh'})
             ]),
         ], justify="center"),
     ]),
