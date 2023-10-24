@@ -60,8 +60,12 @@ tab_data = dbc.Card(
                 html.Br(),
                 dbc.Col([
                     html.Br(),
-                    html.H2("Medical data column definitions",  style={'text-align': 'center'}),
-                    html.Br(),
+                    html.H2(["Medical column definitions", 
+                        dbc.Badge(
+                            "Data", 
+                            href='https://www.kaggle.com/datasets/redwankarimsony/heart-disease-data',
+                            className="ms-1",
+                        )], style={'text-align':'center'}),
                     dbc.ListGroup(children=list_items, id="selectedFeature", style={'margin-left' : '15px'}),
                 ]),
                 dbc.Col([
@@ -113,7 +117,12 @@ tab_model = dbc.Card(
         ]),
         html.Br(),
         dbc.Row([
-            html.H2("Model Selection",  style={'text-align': 'center'}),
+            html.H2(["Model Selection", 
+                dbc.Badge(
+                    "Code", 
+                    href='https://github.com/kb22/Heart-Disease-Prediction/blob/master/Heart%20Disease%20Prediction.ipynb',
+                    className="ms-1",
+                )], style={'text-align':'center'}),
         ]),
         html.Br(),
         dbc.Row([
