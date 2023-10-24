@@ -9,7 +9,8 @@ import dash_ag_grid as dag
 # App idea is to present a prototype of a monitoring UI for a ML model in the medical context
 df_cardiovascular = pd.read_csv('https://raw.githubusercontent.com/kb22/Heart-Disease-Prediction/master/dataset.csv')
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash("heart_disease_prediction", external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 # Design App here and add content from figures, dataset and other relevant calculations to respective divs
 # https://wasmdash.vercel.app/
