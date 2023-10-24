@@ -110,7 +110,9 @@ tab_model = dbc.Card(
     dbc.CardBody([
         dbc.Row([
             html.Img(src=app.get_asset_url('intro_image.jpeg')),
-            html.Br(),
+        ]),
+        html.Br(),
+        dbc.Row([
             html.H2("Model Selection",  style={'text-align': 'center'}),
         ]),
         html.Br(),
