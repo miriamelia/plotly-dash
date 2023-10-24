@@ -9,3 +9,4 @@ ag-grid
 dash-bootstrap-components
 scipy
 setuptools
+gunicorn
