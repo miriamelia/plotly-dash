@@ -156,7 +156,7 @@ app.layout = dbc.Container([
     Input(component_id='data_table', component_property='cellClicked')
 )
 def update_info(cellClicked):
-    dict_meta_info = {'Column': 'none', 'Minimum': 'none', 'Maximum': 'none', 'Mean': 'none'}
+    dict_meta_info = {'Column': '/', 'Minimum': '0', 'Maximum': '0', 'Mean': '0'}
     if cellClicked:
         # generate info on min/max in data column
         maximum = round(df_cardiovascular[cellClicked.get('colId')].max(), 4)
