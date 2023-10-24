@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, dash_table, callback, Output, Input
+from dash import Dash, html, dcc, dash_table, callback, Output, Input, State
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -45,70 +45,58 @@ grid = dag.AgGrid(
     defaultColDef={"resizable": True, "sortable": True, "filter": True, "skipHeader":True},
 )
 
+features = {'cp': 'cp: Chest pain type', 'trestbps': 'trestbps: Resting blood pressure', 'chol': 'chol: Serum cholesterol in mg/dl', 'fbs':'fbs: Fasting blood sugar > 120 mg/d', 'restecg': 'restecg: Resting electrocardiographic results', 'thalach':'thalach: Maximum heart rate achieved', 'exang':'exang: Exercise induced angina', 'oldpeak':'oldpeak: ST depression induced by exercise relative to rest', 'slope':'slope: Of the peak exercise ST segment', 'ca':'ca: Number of major vessels (0-3) colored by fluoroscopy', 'thal':'thal: [normal; fixed defect; reversible defect]', 'target':'target: Heart disease yes / no'}
+list_items = []
+for key, val in features.items():
+    new_val = dbc.ListGroupItem(str(val), id=str(key))
+    list_items.append(new_val)
+
 app.layout = dbc.Container([
     dbc.Container([
-        #html.Br(),
-        #html.Header("Cardiovascular Disease Prediction", style={'font-size': '24px'}),
-        #html.Hr(),
         dbc.Row([ 
             html.Img(src=app.get_asset_url('intro_image.jpeg')),
             html.Br(),
             html.Br(),
             dbc.Col([
                 html.Br(),
-                #html.P("This dummy template demonstrates a monitoring UI for machine learning."),
-                html.P("Medical data column descriptions:", style={'margin-left' : '15px'}),
-                html.Li("cp: Chest pain type", id='cp', style={'margin-left' : '15px'}),
-                html.Li("trestbps: Resting blood pressure", id='trestbps', style={'margin-left' : '15px'}),
-                html.Li("chol: Serum cholesterol in mg/dl", id='chol', style={'margin-left' : '15px'}),
-                html.Li("fbs: Fasting blood sugar > 120 mg/d", id='fbs', style={'margin-left' : '15px'}),
-                html.Li("restecg: Resting electrocardiographic results", id='restecg', style={'margin-left' : '15px'}),
-                html.Li("thalach: Maximum heart rate achieved", id='thalach', style={'margin-left' : '15px'}),
-                html.Li("exang: Exercise induced angina", id='exang', style={'margin-left' : '15px'}),
-                html.Li("oldpeak: ST depression induced by exercise relative to rest", id='oldpeak', style={'margin-left' : '15px'}),
-                html.Li("slope: Of the peak exercise ST segment", id='slop', style={'margin-left' : '15px'}),
-                html.Li("ca: Number of major vessels (0-3) colored by fluoroscopy", id='ca', style={'margin-left' : '15px'}),
-                html.Li("thal: [normal; fixed defect; reversible defect]", id='thal', style={'margin-left' : '15px'}),
-                html.Li("target: Heart disease yes / no", id='target', style={'margin-left' : '15px'}),
+                html.H2("Medical data column definitions",  style={'text-align': 'center'}),
                 html.Br(),
-                html.Br(),
-                html.Br(),
-                dbc.Row([ 
-                    dbc.Col([
-                        html.Div(
-                            [dash_table.DataTable(id='tbl_out', fill_width=False, style_header={
-                                'backgroundColor': 'white',
-                                'fontWeight': 'bold'
-                            }, style_cell={'padding': '5px'},)],
-                            style={'width': '50%', 'margin-left' : '15px'}
-                        ),
-                    ]),
-                ], align='end'),
-            ], style={'width': '45%'}),
-            dbc.Col([
-                dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '60vh', 'height': '48vh'})
+                dbc.ListGroup(children=list_items, id="selectedFeature", style={'margin-left' : '15px'}),
             ]),
-        ], justify="center"),
+            dbc.Col([
+                html.Br(),
+                html.H2("Feature Correlation",  style={'text-align': 'center'}),
+                dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '60vh', 'height': '52vh'}),
+            ]),
+        ], justify="evenly"),
     ]),
     dbc.Row([ 
         html.Div([grid]), 
     ]),
     html.Br(),
-    dbc.Container([
+    dbc.Row([
         dbc.Col([
-                dbc.RadioItems(
-                    options=[{'label': col, 'value': col} for col in df_cardiovascular.columns],
-                    value='age',
-                    id='feature-dist',
-                    inline=True
-                )
+            dbc.RadioItems(
+                options=[{'label': col, 'value': col} for col in df_cardiovascular.columns],
+                value='age',
+                id='feature-dist',
+                inline=True
+            ), 
+        ], width=9), #, style={'width': '80%'}),
+        dbc.Col([ 
+            html.Div(
+                [dash_table.DataTable(id='tbl_out', fill_width=False, cell_selectable=False, style_header={
+                    'backgroundColor': 'white',
+                    'fontWeight': 'bold'
+                }, style_cell={'padding': '5px', 'textAlign': 'right'},)],
+            ),
+        ], width=3),  #style={'width': '20%', 'text-align': 'right'}),
+    ], justify="between"),
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(figure={}, id='feature-hist', style={'width': '115vh', 'height': '48vh'})
         ]),
-        dbc.Row([
-            dbc.Col([
-                dcc.Graph(figure={}, id='feature-hist', style={'width': '115vh', 'height': '48vh'})
-            ]),
-        ], justify="center"),  # Use 'justify' to control spacing between columns
-    ]),
+    ], justify="center"),  # Use 'justify' to control spacing between columns
     dbc.Row([
         dbc.Col(
             dcc.Dropdown(['Decision Tree', 'Random Forest', 'K-Nearest-Neighbor', 'Support Vector Machine'], ['Decision Tree', 'Random Forest'], id="model-dropdown", multi=True)
@@ -139,6 +127,26 @@ def update_info(cellClicked):
         # f"Column {active_cell.get('column_id')}: \n Min:{minimum} \t Max:{maximum} \t Mean:{mean_col}"
         return [dict_meta_info]
     return [dict_meta_info]
+
+# Highlist selected list item
+@callback(
+    Output(component_id='selectedFeature', component_property='children'),
+    Input(component_id='data_table', component_property='cellClicked'),
+    prevent_initial_call=True
+)
+def update_info(cellClicked):
+    feature_list = {'cp': 'cp: Chest pain type', 'trestbps': 'trestbps: Resting blood pressure', 'chol': 'chol: Serum cholesterol in mg/dl', 'fbs':'fbs: Fasting blood sugar > 120 mg/d', 'restecg': 'restecg: Resting electrocardiographic results', 'thalach':'thalach: Maximum heart rate achieved', 'exang':'exang: Exercise induced angina', 'oldpeak':'oldpeak: ST depression induced by exercise relative to rest', 'slope':'slope: Of the peak exercise ST segment', 'ca':'ca: Number of major vessels (0-3) colored by fluoroscopy', 'thal':'thal: [normal; fixed defect; reversible defect]', 'target':'target: Heart disease yes / no'}
+    feature = cellClicked.get('colId')
+    active_list = []
+    if feature == 'age' or feature == 'sex':
+        return list_items
+    for key, val in feature_list.items():
+        new_val = dbc.ListGroupItem(str(val), id=str(key))
+        active_list.append(new_val)
+    if cellClicked:
+        active_list[list(feature_list).index(feature)] = dbc.ListGroupItem(str(feature_list.get(feature)), id=str(feature), color='warning')
+        return active_list
+    return active_list
 
 # Show feature historgam for selected attribute
 @callback(
