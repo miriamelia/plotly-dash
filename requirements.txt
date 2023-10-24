@@ -1,0 +1,7 @@
+dash
+plotly
+matplotlib
+pandas
+dash-ag-grid
+numpyy
+sklearn
