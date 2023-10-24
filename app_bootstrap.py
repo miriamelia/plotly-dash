@@ -51,61 +51,85 @@ for key, val in features.items():
     new_val = dbc.ListGroupItem(str(val), id=str(key))
     list_items.append(new_val)
 
-app.layout = dbc.Container([
-    dbc.Container([
+tab_data = dbc.Card(
+    dbc.CardBody([
+        dbc.Container([
+            dbc.Row([ 
+                html.Img(src=app.get_asset_url('intro_image.jpeg')),
+                html.Br(),
+                html.Br(),
+                dbc.Col([
+                    html.Br(),
+                    html.H2("Medical data column definitions",  style={'text-align': 'center'}),
+                    html.Br(),
+                    dbc.ListGroup(children=list_items, id="selectedFeature", style={'margin-left' : '15px'}),
+                ]),
+                dbc.Col([
+                    html.Br(),
+                    html.H2("Feature Correlation",  style={'text-align': 'center'}),
+                    dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '60vh', 'height': '52vh'}),
+                ]),
+            ], justify="evenly"),
+        ]),
         dbc.Row([ 
+            html.Div([grid]), 
+        ]),
+        html.Br(),
+        dbc.Row([
+            dbc.Col([
+                dbc.RadioItems(
+                    options=[{'label': col, 'value': col} for col in df_cardiovascular.columns],
+                    value='age',
+                    id='feature-dist',
+                    inline=True
+                ), 
+            ], width=8),
+            dbc.Col([ 
+                html.Div(
+                    [dash_table.DataTable(id='tbl_out', fill_width=False, cell_selectable=False, style_header={
+                        'backgroundColor': 'white',
+                        'fontWeight': 'bold'
+                    }, style_cell={'padding': '5px', 'textAlign': 'right'},)],
+                ),
+            ], width=4),
+        ], justify="between"),
+        dbc.Row([
+            dbc.Col([
+                dcc.Graph(figure={}, id='feature-hist', style={'width': '110vh', 'height': '48vh'})
+            ]),
+        ], justify="evenly"),  # Use 'justify' to control spacing between columns
+    ]),
+    className="mt-3",
+)
+
+tab_model = dbc.Card(
+    dbc.CardBody([
+        dbc.Row([
             html.Img(src=app.get_asset_url('intro_image.jpeg')),
             html.Br(),
-            html.Br(),
-            dbc.Col([
-                html.Br(),
-                html.H2("Medical data column definitions",  style={'text-align': 'center'}),
-                html.Br(),
-                dbc.ListGroup(children=list_items, id="selectedFeature", style={'margin-left' : '15px'}),
-            ]),
-            dbc.Col([
-                html.Br(),
-                html.H2("Feature Correlation",  style={'text-align': 'center'}),
-                dcc.Graph(figure=fig_corr, id='feature-corr', style={'width': '60vh', 'height': '52vh'}),
-            ]),
-        ], justify="evenly"),
-    ]),
-    dbc.Row([ 
-        html.Div([grid]), 
-    ]),
-    html.Br(),
-    dbc.Row([
-        dbc.Col([
-            dbc.RadioItems(
-                options=[{'label': col, 'value': col} for col in df_cardiovascular.columns],
-                value='age',
-                id='feature-dist',
-                inline=True
-            ), 
-        ], width=9), #, style={'width': '80%'}),
-        dbc.Col([ 
-            html.Div(
-                [dash_table.DataTable(id='tbl_out', fill_width=False, cell_selectable=False, style_header={
-                    'backgroundColor': 'white',
-                    'fontWeight': 'bold'
-                }, style_cell={'padding': '5px', 'textAlign': 'right'},)],
-            ),
-        ], width=3),  #style={'width': '20%', 'text-align': 'right'}),
-    ], justify="between"),
-    dbc.Row([
-        dbc.Col([
-            dcc.Graph(figure={}, id='feature-hist', style={'width': '115vh', 'height': '48vh'})
+            html.H2("Model Selection",  style={'text-align': 'center'}),
         ]),
-    ], justify="center"),  # Use 'justify' to control spacing between columns
-    dbc.Row([
-        dbc.Col(
-            dcc.Dropdown(['Decision Tree', 'Random Forest', 'K-Nearest-Neighbor', 'Support Vector Machine'], ['Decision Tree', 'Random Forest'], id="model-dropdown", multi=True)
-            ),
-    ]),
-    html.Br(),
-    dbc.Row([
-        html.Div(id='graph-model-results', children=[]),
-    ]),
+        html.Br(),
+        dbc.Row([
+            dbc.Col(dcc.Dropdown(['Decision Tree', 'Random Forest', 'K-Nearest-Neighbor', 'Support Vector Machine'], ['Decision Tree', 'Random Forest'], id="model-dropdown", multi=True)),
+        ]),
+        html.Br(),
+        dbc.Row([
+            html.Div(id='graph-model-results', children=[]),
+        ]),
+        ]
+    ),
+    className="mt-3",
+)
+
+app.layout = dbc.Container([
+    dbc.Tabs(
+    [
+        dbc.Tab(tab_data, label="Data"),
+        dbc.Tab(tab_model, label="Model"),
+    ]
+)
+    
 ])
 
 # Generate min/max/mean values for clicked column
@@ -132,21 +156,21 @@ def update_info(cellClicked):
 @callback(
     Output(component_id='selectedFeature', component_property='children'),
     Input(component_id='data_table', component_property='cellClicked'),
-    prevent_initial_call=True
 )
 def update_info(cellClicked):
     feature_list = {'cp': 'cp: Chest pain type', 'trestbps': 'trestbps: Resting blood pressure', 'chol': 'chol: Serum cholesterol in mg/dl', 'fbs':'fbs: Fasting blood sugar > 120 mg/d', 'restecg': 'restecg: Resting electrocardiographic results', 'thalach':'thalach: Maximum heart rate achieved', 'exang':'exang: Exercise induced angina', 'oldpeak':'oldpeak: ST depression induced by exercise relative to rest', 'slope':'slope: Of the peak exercise ST segment', 'ca':'ca: Number of major vessels (0-3) colored by fluoroscopy', 'thal':'thal: [normal; fixed defect; reversible defect]', 'target':'target: Heart disease yes / no'}
-    feature = cellClicked.get('colId')
-    active_list = []
-    if feature == 'age' or feature == 'sex':
-        return list_items
-    for key, val in feature_list.items():
-        new_val = dbc.ListGroupItem(str(val), id=str(key))
-        active_list.append(new_val)
-    if cellClicked:
-        active_list[list(feature_list).index(feature)] = dbc.ListGroupItem(str(feature_list.get(feature)), id=str(feature), color='warning')
-        return active_list
-    return active_list
+    if cellClicked != None:
+        feature = cellClicked.get('colId')
+        active_list = []
+        if feature == 'age' or feature == 'sex':
+            return list_items
+        for key, val in feature_list.items():
+            new_val = dbc.ListGroupItem(str(val), id=str(key))
+            active_list.append(new_val)
+        if cellClicked != None:
+            active_list[list(feature_list).index(feature)] = dbc.ListGroupItem(str(feature_list.get(feature)), id=str(feature), color='warning')
+            return active_list
+    return list_items
 
 # Show feature historgam for selected attribute
 @callback(
