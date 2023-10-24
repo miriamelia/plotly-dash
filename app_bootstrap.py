@@ -98,6 +98,10 @@ tab_data = dbc.Card(
                 dcc.Graph(figure={}, id='feature-hist', style={'width': '110vh', 'height': '48vh'})
             ]),
         ], justify="evenly"),  # Use 'justify' to control spacing between columns
+        dbc.Row([
+            dbc.Col(
+                html.Footer("© Miriam Elia & Regina Kushtanova", style={'text-align': 'center'}),
+        )], align='evenly'),
     ]),
     className="mt-3",
 )
@@ -117,8 +121,11 @@ tab_model = dbc.Card(
         dbc.Row([
             html.Div(id='graph-model-results', children=[]),
         ]),
-        ]
-    ),
+       dbc.Row([
+            dbc.Col(
+                html.Footer("© Miriam Elia & Regina Kushtanova", style={'text-align': 'center'}),
+        )], align='evenly'),
+    ]),
     className="mt-3",
 )
 
