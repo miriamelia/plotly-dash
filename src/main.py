@@ -29,7 +29,7 @@ fig = px.imshow(df_cardiovascular.corr(), x=df_cardiovascular.columns, y=df_card
 fig.update_xaxes(side="top")
 fig.update_layout(width=800, height=600)
 #fig.show()
-fig.write_html('./figures/feature_correlation_matrix.html')
+#fig.write_html('./figures/feature_correlation_matrix.html')
 
 # histograms for each feature
 # Create a subplot grid
@@ -51,12 +51,12 @@ for i, column in enumerate(df_cardiovascular.columns):
         count = 0
 fig.update_layout(title_text="Feature Historgrams")
 #fig.show()
-fig.write_html('./figures/feature_histograms.html')
+#fig.write_html('./figures/feature_histograms.html')
 
 # For target class
 fig = px.histogram(df_cardiovascular, x='target')
 #fig.show()
-fig.write_html('./figures/label_histogram.html')
+#fig.write_html('./figures/label_histogram.html')
 
 # Data Preprocessing
 
@@ -95,7 +95,7 @@ fig_knn.update_xaxes(tickvals=df_cardiovascular)
 fig_knn.update_layout(title="K Neighbors Classifier scores for different K values")
 #fig_knn.show()
 figures_model_results["K-Nearest-Neighbor"] = fig_knn
-fig_knn.write_html('./figures/knn_scores.html')
+#fig_knn.write_html('./figures/knn_scores.html')
 
 # Support Vector Classifier
 svc_scores = []
@@ -121,7 +121,7 @@ for annotation in text_annotations:
 
 #fig_svm.show()
 figures_model_results["Support Vector Machine"] = fig_svm
-fig_svm.write_html('./figures/svm_scores.html')
+#fig_svm.write_html('./figures/svm_scores.html')
 
 # Decision Tree
 dt_scores = []
@@ -148,7 +148,7 @@ for annotation in text_annotations:
 fig_dt.update_xaxes(tickvals=list(range(1, len(X.columns) + 1)))
 #fig_dt.show()
 figures_model_results["Decision Tree"] = fig_dt
-fig_dt.write_html('./figures/dt_scores.html')
+#fig_dt.write_html('./figures/dt_scores.html')
 
 # Random Forest
 
@@ -182,4 +182,4 @@ for annotation in text_annotations:
 
 #fig_rf.show()
 figures_model_results["Random Forest"] = fig_rf
-fig_rf.write_html('./figures/rf_scores.html')
+#fig_rf.write_html('./figures/rf_scores.html')
