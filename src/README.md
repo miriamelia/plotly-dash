@@ -4,6 +4,8 @@
 Course: https://maven.com/plotly/web-apps
 
 This demo displays layout ideas for a monitoring dashboard based on a simple ML use case for heart disease prediction.
+Find the app here: https://heart-disease-prediction-ml-dashboard.onrender.com/ or run it on your personal server.
+To run the app on render, all files are stored in a src Folder.
 
 Data: https://www.kaggle.com/datasets/redwankarimsony/heart-disease-data
 
