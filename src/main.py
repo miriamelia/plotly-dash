@@ -12,8 +12,10 @@ import plotly.graph_objects as go
 import warnings
 warnings.filterwarnings('ignore')
 
+# ML Logic, based on:
 # see https://www.kaggle.com/datasets/redwankarimsony/heart-disease-data 
 # see https://github.com/kb22/Heart-Disease-Prediction/blob/master/Heart%20Disease%20Prediction.ipynb 
+
 df_cardiovascular = pd.read_csv('https://raw.githubusercontent.com/kb22/Heart-Disease-Prediction/master/dataset.csv') 
 df_cardiovascular.info()
 df_cardiovascular.describe()
