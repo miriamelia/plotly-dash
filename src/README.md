@@ -11,3 +11,5 @@ Models: https://github.com/kb22/Heart-Disease-Prediction/blob/master/Heart%20Dis
 
 # Plotly-dash-app demo
 Course: https://maven.com/plotly/web-apps
+
+![image](https://github.com/miriamelia/plotly-dash/assets/29278598/5e18ecad-599c-4a82-b444-296e10f4e657)
